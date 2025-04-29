@@ -1,8 +1,6 @@
 import React,{ useState } from 'react'
-import ConnectWallet from './connectWallet';
 
 export default function Nav(props) {
-    const {wallet, Connect} = ConnectWallet();
     const diposit = () => {
         if (!props.showDeposit) {
             props.setShowDeposit(true); props.setShowHome(false);props.setShowStake(false); props.setShowSwap(false);
@@ -27,9 +25,7 @@ export default function Nav(props) {
             console.log("Swap clicked")
         }
     }
-
-    console.log("Wallet address:", wallet);
-
+    const shortAddress = props.wallet.toString().slice(0, 5) + "..." + props.wallet.toString().slice(-5);
     return (
         <>
             <header className="app-header">
@@ -41,7 +37,7 @@ export default function Nav(props) {
                     <button onClick={swap} className="nav-link" >Exchange</button>
                 </nav>
                 <div className="wallet-connect">
-                    <button type='button' onClick={Connect} className="connect-btn">Connect</button>
+                    <button type='button' onClick={props.Connect} className="connect-btn">{!props.wallet ? "Connect Wallet" : shortAddress}</button>
                 </div>
             </header>
         </>

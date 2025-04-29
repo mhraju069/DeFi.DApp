@@ -1,6 +1,41 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { formatEther,parseEther } from 'ethers';
+export default function Stake(props) {
+    const { wallet, provider, contract } = props;
+    const [stakeAmount, setStakeAmount] = useState(0);
+    const [duration, setDuration] = useState(1); // Default to 1 min
+    const [balance, setBalance] = useState(0);
+    const [stakedAssets, setStakedAssets] = useState(0);
 
-export default function stake() {
+
+    const stake = async () => {
+        if (!stakeAmount || isNaN(stakeAmount)){
+            alert("Please enter a valid amount to stake.");
+            return;
+        }
+        try{
+            const tx = await contract.Stake(parseEther(stakeAmount), duration);
+            await tx.wait();
+            alert("Staking successful!");
+        }catch (error) {
+            console.error("Error staking:", error);
+            alert("An error occurred while staking. Please try again.");
+        }
+    }
+
+
+
+    useEffect(() => {
+        const getBalance = async () => {
+            const currentBalance = await contract.balance(wallet);
+            const staked = await contract.stakeBalance(wallet);
+            setStakedAssets(formatEther(staked));
+            setBalance(formatEther(currentBalance));
+        };
+        getBalance()
+    },
+        [contract, wallet])
+
     return (
         <>
             <section id="stake" className="fade-in">
@@ -17,31 +52,37 @@ export default function stake() {
                     <div className="asset-info">
                         <img src="https://cryptologos.cc/logos/blockchain-com-bc-logo.png" alt="BXT" style={{ width: '48px', height: '48px' }} />
                         <div className="asset-details">
-                            <h3>BlockchainX Token (BXT)</h3>
-                            <p>Current APY: 14.8% | Your stake: 1,250 BXT ($3,125.00)</p>
+                            <h3>BlockX Token (BXT)</h3>
+                            <p>Current APY: 14.8% | Your stake: {parseFloat(stakedAssets).toFixed(2)} ETH</p>
                         </div>
                     </div>
 
                     <form id="stakeForm">
                         <div className="form-group">
                             <div className="balance-info">
-                                <span>Available: 1,250 BXT</span>
+                                <span>Available: {parseFloat(balance).toFixed(2)} ETH</span>
                                 <span>≈ $3,125.00</span>
                             </div>
 
                             <div className="amount-input">
-                                <input type="number" id="stakeAmount" className="form-control" placeholder="0.00" step="1" min="0" max="1250" required />
-                                <button type="button" className="max-btn">MAX</button>
+                                <input type="text" id="stakeAmount" value={stakeAmount} onChange={e => { setStakeAmount(e.target.value) }} className="form-control" placeholder="0.00" step="1" min="0" max="1250" required />
+                                <button onClick={() => setStakeAmount(parseFloat(balance).toFixed(2))} type="button" className="max-btn">MAX</button>
                             </div>
-                            <div className="form-text">Minimum stake: 10 BXT</div>
+                            <div className="form-text">Minimum stake: 0.01 ETH</div>
                         </div>
 
                         <div className="form-group">
                             <label className="form-label">Staking Duration</label>
-                            <div className="duration-options">
-                                <div className="duration-option">30 days</div>
-                                <div className="duration-option active">90 days</div>
-                                <div className="duration-option">180 days</div>
+                            <div className="PB-range-slider-div">
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="300"
+                                    value={duration}
+                                    className="PB-range-slider"
+                                    onChange={(e) => setDuration(Number(e.target.value))}
+                                />
+                                <p className="PB-range-slidervalue">{(duration)}</p>
                             </div>
                             <div className="form-text">Longer durations typically offer higher APY</div>
                         </div>
@@ -61,7 +102,7 @@ export default function stake() {
                             </div>
                         </div>
 
-                        <button type="submit" className="confirm-stake-btn">Stake Tokens</button>
+                        <button type="button" onClick={stake} className="confirm-stake-btn">Stake Tokens</button>
                     </form>
                 </div>
 

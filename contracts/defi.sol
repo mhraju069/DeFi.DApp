@@ -6,7 +6,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 contract Defi_v1 is Initializable {
     mapping(address => uint256) public balance;
     mapping(address => uint256) public stakeBalance;
-    mapping(address => uint256) public stakeDuration;
+    mapping(address => uint256) public endTime;
 
     event deposit(address indexed user, uint256 amount);
     event stake(address indexed user, uint256 amount);
@@ -20,21 +20,15 @@ contract Defi_v1 is Initializable {
 
     function Stake(uint256 amount, uint256 duration) public {
         require(amount <= balance[msg.sender], "No enough balance");
-        stakeBalance[msg.sender] += (amount * 98) / 100;
-        balance[address(this)] += (amount * 2) / 100;
-        stakeDuration[msg.sender] =
-            block.timestamp +
-            duration *
-            30 *
-            24 *
-            60 *
-            60; //seconds
+        stakeBalance[msg.sender] += amount ;
+        endTime[msg.sender] = block.timestamp +duration * 1 minutes;
+        balance[msg.sender] -= amount;
         emit stake(msg.sender, amount);
     }
 
     function Unstake(uint256 amount) public {
         require(
-            stakeDuration[msg.sender] <= block.timestamp,
+            endTime[msg.sender] <= block.timestamp,
             "You can not unstake untill time has end"
         );
         require(stakeBalance[msg.sender] >= amount, "No enough balance");

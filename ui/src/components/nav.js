@@ -1,0 +1,46 @@
+import React from 'react'
+
+export default function nav(props) {
+    const diposit = () => {
+        if (!props.showDeposit) {
+            props.setShowDeposit(true); props.setShowHome(false);props.setShowStake(false); props.setShowSwap(false);
+            console.log("Deposit clicked")
+        }
+    }
+    const home = () => {
+        if (!props.showHome) {
+            props.setShowHome(true); props.setShowDeposit(false);props.setShowStake(false); props.setShowSwap(false);
+          console.log("Home clicked")
+        }
+      }
+    const stake = () => {
+        if (!props.showStake) {
+            props.setShowStake(true); props.setShowHome(false); props.setShowDeposit(false); props.setShowSwap(false);
+            console.log("Stake clicked")
+        }
+    }
+    const swap = () => {
+        if (!props.showSwap) {
+            props.setShowSwap(true); props.setShowHome(false); props.setShowDeposit(false); props.setShowStake(false);
+            console.log("Swap clicked")
+        }
+    }
+
+
+    return (
+        <>
+            <header className="app-header">
+                <div className="logo">Block<span>X</span></div>
+                <nav className="main-nav">
+                    <button onClick={home} className="nav-link active" >Home</button>
+                    <button onClick={diposit} className="nav-link" >Deposit</button>
+                    <button onClick={stake} className="nav-link" >Stake</button>
+                    <button onClick={swap} className="nav-link" >Exchange</button>
+                </nav>
+                <div className="wallet-connect">
+                    <button className="connect-btn">Connect</button>
+                </div>
+            </header>
+        </>
+    )
+}

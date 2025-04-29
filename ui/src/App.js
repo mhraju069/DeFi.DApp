@@ -1,24 +1,39 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
+import Particles from './components/particles';
+import Nav from './components/nav';
+import Home from './components/home';
+import Deposit from './components/deposit';
+import Stake from './components/stake';
+import Swap from './components/swap';
 import './App.css';
 
 function App() {
+  const [showHome, setShowHome] = useState(true);
+  const [showDeposit, setShowDeposit] = useState(false);
+  const [showStake, setShowStake] = useState(false);
+  const [showSwap, setShowSwap] = useState(false);
+  const [showActivity, setShowActivity] = useState(false);
+  const [showDepositForm, setShowDepositForm] = useState(false);
+
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Particles />
+      
+      <Nav showHome={showHome} setShowHome={setShowHome} setShowDeposit={setShowDeposit} showDeposit={showDeposit} showStake={showStake} setShowStake={setShowStake} showSwap={showSwap} setShowSwap={setShowSwap} />
+ 
+      <main className="main-content">
+        {showHome && <Home />}
+        {showDeposit && <Deposit />}
+        {showStake && <Stake />}
+        {showSwap && <Swap />}
+      </main>
+
+
+
+
+    </>
   );
 }
 

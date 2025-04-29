@@ -5,6 +5,7 @@ import Home from './components/home';
 import Deposit from './components/deposit';
 import Stake from './components/stake';
 import Swap from './components/swap';
+
 import './App.css';
 
 function App() {
@@ -12,15 +13,13 @@ function App() {
   const [showDeposit, setShowDeposit] = useState(false);
   const [showStake, setShowStake] = useState(false);
   const [showSwap, setShowSwap] = useState(false);
-  const [showActivity, setShowActivity] = useState(false);
-  const [showDepositForm, setShowDepositForm] = useState(false);
 
 
 
   return (
     <>
       <Particles />
-      
+
       <Nav showHome={showHome} setShowHome={setShowHome} setShowDeposit={setShowDeposit} showDeposit={showDeposit} showStake={showStake} setShowStake={setShowStake} showSwap={showSwap} setShowSwap={setShowSwap} />
  
       <main className="main-content">

@@ -1,6 +1,8 @@
-import React from 'react'
+import React,{ useState } from 'react'
+import ConnectWallet from './connectWallet';
 
-export default function nav(props) {
+export default function Nav(props) {
+    const {wallet, Connect} = ConnectWallet();
     const diposit = () => {
         if (!props.showDeposit) {
             props.setShowDeposit(true); props.setShowHome(false);props.setShowStake(false); props.setShowSwap(false);
@@ -26,6 +28,7 @@ export default function nav(props) {
         }
     }
 
+    console.log("Wallet address:", wallet);
 
     return (
         <>
@@ -38,7 +41,7 @@ export default function nav(props) {
                     <button onClick={swap} className="nav-link" >Exchange</button>
                 </nav>
                 <div className="wallet-connect">
-                    <button className="connect-btn">Connect</button>
+                    <button type='button' onClick={Connect} className="connect-btn">Connect</button>
                 </div>
             </header>
         </>

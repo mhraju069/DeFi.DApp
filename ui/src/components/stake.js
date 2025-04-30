@@ -1,25 +1,44 @@
 import React, { useEffect, useState } from 'react'
-import { formatEther,parseEther } from 'ethers';
+import { formatEther, parseEther } from 'ethers';
 export default function Stake(props) {
-    const { wallet, provider, contract } = props;
+    const { wallet, contract } = props;
     const [stakeAmount, setStakeAmount] = useState(0);
+    const [unstakeAmount, setUnstakeAmount] = useState(0);
     const [duration, setDuration] = useState(1); // Default to 1 min
     const [balance, setBalance] = useState(0);
     const [stakedAssets, setStakedAssets] = useState(0);
+    const [showStaked, setShowStaked] = useState(true);
+    const [showUnstaked, setShowUnstaked] = useState(false);
 
 
-    const stake = async () => {
-        if (!stakeAmount || isNaN(stakeAmount)){
+
+    const Stake = async () => {
+        if (!stakeAmount || isNaN(stakeAmount)) {
             alert("Please enter a valid amount to stake.");
             return;
         }
-        try{
+        try {
             const tx = await contract.Stake(parseEther(stakeAmount), duration);
             await tx.wait();
             alert("Staking successful!");
-        }catch (error) {
+        } catch (error) {
             console.error("Error staking:", error);
             alert("An error occurred while staking. Please try again.");
+        }
+    }
+
+    const Unstake = async () => {
+        if (!unstakeAmount || isNaN(unstakeAmount)) {
+            alert("Please enter a valid amount to stake.");
+            return;
+        }
+        try {
+            const tx = await contract.Unstake(parseEther(unstakeAmount));
+            await tx.wait();
+            alert("Unstakeing successful!");
+        } catch (error) {
+            console.error("Error Unstakeing:", error);
+            alert("An error occurred while Unstakeing. Please try again.");
         }
     }
 
@@ -36,6 +55,22 @@ export default function Stake(props) {
     },
         [contract, wallet])
 
+    const ShowStake = () => {
+        if (!showStaked) {
+            setShowStaked(true);
+            setShowUnstaked(false);
+        }
+    }
+    const ShowUnstake = () => {
+        if (!showUnstaked) {
+            setShowStaked(false);
+            setShowUnstaked(true);
+        }
+    }
+
+
+
+
     return (
         <>
             <section id="stake" className="fade-in">
@@ -43,15 +78,22 @@ export default function Stake(props) {
                 <p className="page-subtitle">Earn passive income with your crypto. Stake your assets and start earning rewards today.</p>
 
                 <div className="stake-tabs">
-                    <div className="tab active">Stake</div>
-                    <div className="tab">Unstake</div>
-                    <div className="tab">Rewards</div>
+                    <span onClick={ShowStake} className={`tab ${showStaked ? 'active' : ''}`}>Stake</span>
+                    <span onClick={ShowUnstake} className={`tab ${showUnstaked ? 'active' : ''}`}>Unstake</span>
+                    <span className="tab">Rewards</span>
                 </div>
 
-                <div className="card stake-card">
+
+                {showStaked && <div className="card stake-card">
                     <div className="asset-info">
-                        <img src="https://cryptologos.cc/logos/blockchain-com-bc-logo.png" alt="BXT" style={{ width: '48px', height: '48px' }} />
-                        <div className="asset-details">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" preserveAspectRatio="xMidYMid" viewBox="0 0 256 417" id="ethereum">
+                            <path fill="#343434" d="M127.961 0l-2.795 9.5v275.668l2.795 2.79 127.962-75.638z"></path>
+                            <path fill="#8C8C8C" d="M127.962 0L0 212.32l127.962 75.639V154.158z"></path>
+                            <path fill="#3C3C3B" d="M127.961 312.187l-1.575 1.92v98.199l1.575 4.6L256 236.587z"></path>
+                            <path fill="#8C8C8C" d="M127.962 416.905v-104.72L0 236.585z"></path>
+                            <path fill="#141414" d="M127.961 287.958l127.96-75.637-127.96-58.162z"></path>
+                            <path fill="#393939" d="M0 212.32l127.96 75.638v-133.8z"></path>
+                        </svg>                        <div className="asset-details">
                             <h3>BlockX Token (BXT)</h3>
                             <p>Current APY: 14.8% | Your stake: {parseFloat(stakedAssets).toFixed(2)} ETH</p>
                         </div>
@@ -102,10 +144,57 @@ export default function Stake(props) {
                             </div>
                         </div>
 
-                        <button type="button" onClick={stake} className="confirm-stake-btn">Stake Tokens</button>
+                        <button type="button" onClick={Stake} className="confirm-stake-btn">Stake Tokens</button>
                     </form>
-                </div>
+                </div>}
+                {showUnstaked && <div className="card stake-card">
+                    <div className="asset-info">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" preserveAspectRatio="xMidYMid" viewBox="0 0 256 417" id="ethereum">
+                            <path fill="#343434" d="M127.961 0l-2.795 9.5v275.668l2.795 2.79 127.962-75.638z"></path>
+                            <path fill="#8C8C8C" d="M127.962 0L0 212.32l127.962 75.639V154.158z"></path>
+                            <path fill="#3C3C3B" d="M127.961 312.187l-1.575 1.92v98.199l1.575 4.6L256 236.587z"></path>
+                            <path fill="#8C8C8C" d="M127.962 416.905v-104.72L0 236.585z"></path>
+                            <path fill="#141414" d="M127.961 287.958l127.96-75.637-127.96-58.162z"></path>
+                            <path fill="#393939" d="M0 212.32l127.96 75.638v-133.8z"></path>
+                        </svg>
+                        <div className="asset-details">
+                            <h3>Unstake balance to get rewards</h3>
+                            <p>Current APY: 14.8%</p>
+                        </div>
+                    </div>
 
+                    <form id="stakeForm">
+                        <div className="form-group">
+                            <div className="balance-info">
+                                <span>Your available stake: {parseFloat(stakedAssets).toFixed(2)} ETH</span>
+                                <span>≈ $3,125.00</span>
+                            </div>
+
+                            <div className="amount-input">
+                                <input type="text" id="stakeAmount" value={unstakeAmount} onChange={e => { setUnstakeAmount(e.target.value) }} className="form-control" placeholder="0.00" step="1" min="0" max="1250" required />
+                                <button onClick={() => setUnstakeAmount(parseFloat(stakedAssets).toFixed(2))} type="button" className="max-btn">MAX</button>
+                            </div>
+                            <div className="form-text">Minimum unstake: 0.01 ETH</div>
+                        </div>
+
+                        <div className="projected-rewards">
+                            <h4>Projected Rewards</h4>
+                            <div className="rewards-chart"></div>
+                            <div className="rewards-details">
+                                <div>
+                                    <span>30 days</span>
+                                    <span>≈ 0 BXT</span>
+                                </div>
+                                <div>
+                                    <span>90 days</span>
+                                    <span>≈ 0 BXT</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="button" onClick={Unstake} className="confirm-stake-btn">Unstake Tokens</button>
+                    </form>
+                </div>}
                 <div className="other-pools">
                     <h3>Other Staking Pools</h3>
                     <p className="page-subtitle" style={{ marginBottom: 0 }}>Explore additional staking opportunities</p>

@@ -1,9 +1,10 @@
-import { formatEther  } from 'ethers'; // সঠিক
+import { formatEther } from 'ethers'; // সঠিক
 import React, { useEffect, useState } from 'react'
+import Activity from './activity';
 import stake from './stake';
 
 export default function Home(props) {
-    const { wallet ,provider , contract } = props;
+    const { wallet, provider, contract } = props;
     const [isWallet, setIsWallet] = useState(false);
     const [balance, setBalance] = useState(0);
     const [stakedAssets, setStakedAssets] = useState(0);
@@ -27,6 +28,8 @@ export default function Home(props) {
         }
         getBalance();
     }, [wallet]);
+
+
 
     return (
         <>
@@ -81,43 +84,9 @@ export default function Home(props) {
                     </div>
                 </div> */}
 
-                <div className="card activity-feed">
-                    <h2>Recent Activity</h2>
-                    <div className="activity-list">
-                        <div className="activity-item">
-                            <div className="activity-icon stake">↑</div>
-                            <div className="activity-details">
-                                <p>Staked 500 BXT</p>
-                                <small>2 hours ago</small>
-                            </div>
-                            <div className="activity-amount">+$1,250.00</div>
-                        </div>
-                        <div className="activity-item">
-                            <div className="activity-icon deposit">↓</div>
-                            <div className="activity-details">
-                                <p>Deposited 1.5 ETH</p>
-                                <small>5 hours ago</small>
-                            </div>
-                            <div className="activity-amount">+$4,500.00</div>
-                        </div>
-                        <div className="activity-item">
-                            <div className="activity-icon swap">⇄</div>
-                            <div className="activity-details">
-                                <p>Swapped ETH for BXT</p>
-                                <small>1 day ago</small>
-                            </div>
-                            <div className="activity-amount">-1.5 ETH +1,875 BXT</div>
-                        </div>
-                        <div className="activity-item">
-                            <div className="activity-icon">↓</div>
-                            <div className="activity-details">
-                                <p>Withdrew 0.5 BTC</p>
-                                <small>2 days ago</small>
-                            </div>
-                            <div className="activity-amount negative">-$15,200.00</div>
-                        </div>
-                    </div>
-                </div>
+                {contract &&
+                    <Activity contract= {contract} />
+                }
             </section>
         </>
     )

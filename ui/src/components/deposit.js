@@ -1,16 +1,17 @@
-import React, { useEffect } from 'react'
-
-import { parseEther,formatEther } from 'ethers';
+import React, { useEffect,useRef } from 'react'
+import QRCode from 'qrcode';
+import { parseEther, formatEther } from 'ethers';
 
 export default function Deposit(props) {
-    const { contract, wallet , provider } = props
+    const { contract, wallet, provider } = props
     const [amount, setAmount] = React.useState(0)
     const [balance, setBalance] = React.useState(0)
+
     useEffect(() => {
-        const getBalance = async () => 
-            { const Balance = await provider.getBalance(wallet)
+        const getBalance = async () => {
+            const Balance = await provider.getBalance(wallet)
             setBalance(formatEther(Balance))
-             };
+        };
         getBalance()
     },
         [contract, wallet])
@@ -34,6 +35,27 @@ export default function Deposit(props) {
             alert("Deposit failed. Please try again.")
         }
     }
+
+    const canvasRef = useRef();
+
+    useEffect(() => {
+        if (wallet && canvasRef.current) {
+            QRCode.toCanvas(canvasRef.current, wallet, { width: 180 }, function (error) {
+                if (error) console.error(error);
+            });
+        }
+    }, [wallet]);
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(wallet);
+            alert("Wallet address copied!");
+        } catch (err) {
+            alert("Failed to copy!");
+        }
+    };
+
+
     return (
         <>
             <section id="deposit" className="fade-in">
@@ -43,12 +65,12 @@ export default function Deposit(props) {
                 <div className="deposit-grid">
                     <div className="card deposit-card">
                         <form id="depositForm">
-                        <div className="form-group">
-                        <label htmlFor="asset" className="form-label">Available Balance for deposit</label>
+                            <div className="form-group">
+                                <label htmlFor="asset" className="form-label">Available Balance for deposit</label>
                                 <div className="amount-input">
                                     <input type="text" id="amount" value={parseFloat(balance).toFixed(2) + ' ETH'} className="form-control" disabled step="0.0001" min="0" required />
                                 </div>
-                                
+
                             </div>
 
 
@@ -110,13 +132,10 @@ export default function Deposit(props) {
                         <h3>Deposit via Wallet Address</h3>
                         <div className="qr-code">
                             {/* <!-- QR code would be generated here --> */}
-                            <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect width="180" height="180" fill="white" />
-                                <path fillRule="evenodd" clipRule="evenodd" d="M36 36H48V48H36V36ZM72 36H84V48H72V36ZM108 36H120V48H108V36ZM144 36H156V48H144V36ZM36 72H48V84H36V72ZM108 72H120V84H108V72ZM36 108H48V120H36V108ZM72 108H84V120H72V108ZM108 108H120V120H108V108ZM144 108H156V120H144V108ZM36 144H48V156H36V144ZM108 144H120V156H108V144Z" fill="black" />
-                            </svg>
+                            <canvas ref={canvasRef}></canvas>
                         </div>
-                        <p className="wallet-address">0x7f3a5b2c8d4e6f1a9b0c3d2e4f6a8b7c5d3e1f4</p>
-                        <button className="copy-btn">Copy Address</button>
+                        <p className="wallet-address">{wallet}</p>
+                        <button onClick={handleCopy} className="copy-btn">Copy Address</button>
                         <div className="form-text" style={{ marginTop: '1rem' }}>Send only ETH to this address. Sending other assets may result in permanent loss.</div>
                     </div>
                 </div>

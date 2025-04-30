@@ -1,7 +1,7 @@
 import { BrowserProvider, Contract } from 'ethers';
 import React, { useState } from 'react'
 import Defi_v1 from './Defi_v1.json';
-const contractAddress = "0x84e876E5153c945C744C692EA6323180121eE3F9"; // Replace with your contract address
+const contractAddress = "0x79d2C47d09a46367dC9d25B5573B6D63A84C93e6"; // Replace with your contract address
 export function ConnectWallet() {
     const [wallet, setWallet] = useState('');
     const [contract, setContract] = useState('');

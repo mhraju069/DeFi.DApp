@@ -1,5 +1,5 @@
 import { formatEther } from 'ethers';
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 
 export default function Activity(props) {
     const { contract } = props;
@@ -34,7 +34,7 @@ export default function Activity(props) {
                 ];
 
                 allLogs.sort((a, b) => b.blockNumber - a.blockNumber);
-                setLog(allLogs);
+                setLog(allLogs.slice(0, 50));
             } catch (e) {
                 console.log("Fetch log error", e);
             }

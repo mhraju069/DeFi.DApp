@@ -28,14 +28,14 @@ export default function Nav(props) {
     const shortAddress = props.wallet.toString().slice(0, 5) + "..." + props.wallet.toString().slice(-5);
     return (
         <>
-            <header className="app-header">
+          <header className="app-header">
                 <div className="logo">Block<span>X</span></div>
-                <nav className="main-nav">
-                    <button onClick={home} className="nav-link active" >Home</button>
-                    <button onClick={diposit} className="nav-link" >Deposit</button>
-                    <button onClick={stake} className="nav-link" >Stake</button>
-                    <button onClick={swap} className="nav-link" >Exchange</button>
-                </nav>
+                {props.wallet &&  <nav className="main-nav">
+                    <button onClick={home} className={`nav-link ${props.showHome ? 'active' : ''}`}  >Home</button>
+                    <button onClick={diposit} className={`nav-link ${props.showDeposit ? 'active' : ''}`} >Deposit</button>
+                    <button onClick={stake} className={`nav-link ${props.showStake ? 'active' : ''}`} >Stake</button>
+                    <button onClick={swap} className={`nav-link ${props.showSwap ? 'active' : ''}`} >Exchange</button>
+                </nav> }
                 <div className="wallet-connect">
                     <button type='button' onClick={props.Connect} className="connect-btn">{!props.wallet ? "Connect Wallet" : shortAddress}</button>
                 </div>

@@ -1,13 +1,31 @@
-# Sample Hardhat Project
+# 🏦 DeFi DApp - Stake, Unstake, and Deposit ETH
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.
+A decentralized finance (DeFi) application built using **Solidity**, **React.js**, **Ethers.js**, and **Hardhat**. Users can deposit ETH, stake for rewards, and unstake anytime. Recent activity is tracked and displayed from smart contract events.
 
-Try running some of the following tasks:
+## 🚀 Features
 
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat ignition deploy ./ignition/modules/Lock.js
-```
+- 🟢 **Deposit ETH** to the contract
+- 🔒 **Stake ETH** to earn potential rewards
+- 🔓 **Unstake ETH** anytime
+- 📜 **Real-time Activity Feed** of latest 50 transactions:
+  - Deposit
+  - Stake
+  - Unstake
+- 📦 Fully integrated with **Ethereum-compatible wallet** (e.g., MetaMask)
+- 🧠 Smart contracts built in **Solidity**
+- 🎛 Frontend powered by **React + Ethers.js**
+- 🔧 Development & testing with **Hardhat**
+
+---
+
+## 🛠 Technologies Used
+
+| Tech             | Usage                     |
+|------------------|----------------------------|
+| Solidity         | Smart contract             |
+| React.js         | Frontend UI                |
+| Ethers.js        | Interacting with contract  |
+| Hardhat          | Development environment    |
+| MetaMask         | Wallet connection          |
+
+---

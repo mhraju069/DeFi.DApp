@@ -1,43 +1,49 @@
 import { formatEther } from 'ethers'; // সঠিক
 import React, { useEffect, useState } from 'react'
 import Activity from './activity';
-import stake from './stake';
+
 
 export default function Home(props) {
-    const { wallet, provider, contract } = props;
+    const { wallet, contract, setLoader, Alert } = props;
     const [isWallet, setIsWallet] = useState(false);
     const [balance, setBalance] = useState(0);
     const [stakedAssets, setStakedAssets] = useState(0);
-    const [apy, setApy] = useState(0);
-    const [transactions, setTransactions] = useState(0);
+
+
     const getBalance = async () => {
         try {
+            // if (loader) return;
+            setLoader(true);
             const currentBalance = await contract.balance(wallet);
             setBalance(formatEther(currentBalance));
             const staked = await contract.stakeBalance(wallet);
             setStakedAssets(formatEther(staked));
         }
         catch (error) {
+            Alert("Something went wrong", "error")
             console.log(error);
+        } finally {
+            setLoader(false);
         }
     }
 
     useEffect(() => {
-        if (wallet !== "") {
+        if (wallet && contract) {
+            getBalance();
             setIsWallet(true);
         }
-        getBalance();
+       
     }, [wallet]);
 
 
 
     return (
         <>
-            <section id="dashboard" className="fade-in">
+            {isWallet ? <> <section id="dashboard" className="fade-in">
                 <h1 className="page-title">Dashboard</h1>
                 <p className="page-subtitle">Your blockchain portfolio at a glance. Track your assets, staking rewards, and recent transactions in one place.</p>
 
-                {isWallet && <div className="stats-grid">
+                <div className="stats-grid">
                     <div className="card stat-card">
                         <h3>Deposited Balance</h3>
                         <h1>{parseFloat(balance).toFixed(2)} ETH</h1>
@@ -62,32 +68,18 @@ export default function Home(props) {
                         <div className="sparkline">24.7%</div>
                     </div>
 
-                </div>}
-
-                {/* <div className="action-cards">
-                    <div className="card action-card deposit" data-page="deposit">
-                        <h3>Deposit Funds</h3>
-                        <p>Add assets to your wallet</p>
-                        <button className="action-btn">+ Deposit</button>
-                    </div>
-
-                    <div className="card action-card stake" data-page="stake">
-                        <h3>Stake Assets</h3>
-                        <p>Earn passive income</p>
-                        <button className="action-btn">↑ Stake</button>
-                    </div>
-
-                    <div className="card action-card exchange" data-page="exchange">
-                        <h3>Exchange</h3>
-                        <p>Swap tokens instantly</p>
-                        <button className="action-btn">⇄ Exchange</button>
-                    </div>
-                </div> */}
-
-                {contract &&
-                    <Activity contract= {contract} />
-                }
+                </div>
             </section>
+                <Activity contract={contract} /> </>
+                :
+                <h3 style={{
+                    textAlign: "center",
+                    marginTop: "20%",
+                    fontSize: "3em",
+                    color: "#fff",
+                    fontWeight: "bold",
+                    fontFamily: "cursive"
+                }}>Connect Your Wallet First</h3>}
         </>
     )
 }

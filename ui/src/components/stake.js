@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { formatEther, parseEther } from 'ethers';
+import Loader from './loader';
 export default function Stake(props) {
-    const { wallet, contract } = props;
+    const { wallet, contract,Alert } = props;
     const [stakeAmount, setStakeAmount] = useState(0);
     const [unstakeAmount, setUnstakeAmount] = useState(0);
     const [duration, setDuration] = useState(1); // Default to 1 min
@@ -9,36 +10,42 @@ export default function Stake(props) {
     const [stakedAssets, setStakedAssets] = useState(0);
     const [showStaked, setShowStaked] = useState(true);
     const [showUnstaked, setShowUnstaked] = useState(false);
+    const [loader, setLoader] = useState(false);
+
 
 
 
     const Stake = async () => {
         if (!stakeAmount || isNaN(stakeAmount)) {
-            alert("Please enter a valid amount to stake.");
+            Alert("Please enter a valid amount for staking.","warning");
             return;
         }
         try {
+            setLoader(true);
             const tx = await contract.Stake(parseEther(stakeAmount), duration);
             await tx.wait();
-            alert("Staking successful!");
+            Alert("Staking successful!","success");
         } catch (error) {
             console.error("Error staking:", error);
-            alert("An error occurred while staking. Please try again.");
+            Alert("Something went wrong,try again.","error");
+        }finally{
+            setLoader(false);
         }
     }
 
     const Unstake = async () => {
         if (!unstakeAmount || isNaN(unstakeAmount)) {
-            alert("Please enter a valid amount to stake.");
+            Alert("Please enter a valid amount for unstake.","warning"); 
             return;
         }
         try {
+            setLoader(true);
             const tx = await contract.Unstake(parseEther(unstakeAmount));
             await tx.wait();
-            alert("Unstakeing successful!");
+            Alert("Unstake successful!","success");
         } catch (error) {
             console.error("Error Unstakeing:", error);
-            alert("An error occurred while Unstakeing. Please try again.");
+            Alert("Something went wrong,try again.","error");
         }
     }
 
@@ -46,10 +53,12 @@ export default function Stake(props) {
 
     useEffect(() => {
         const getBalance = async () => {
+            setLoader(true);
             const currentBalance = await contract.balance(wallet);
             const staked = await contract.stakeBalance(wallet);
             setStakedAssets(formatEther(staked));
             setBalance(formatEther(currentBalance));
+            setLoader(false);
         };
         getBalance()
     },
@@ -72,7 +81,7 @@ export default function Stake(props) {
 
 
     return (
-        <>
+        <>  {loader && <Loader />}
             <section id="stake" className="fade-in">
                 <h1 className="page-title">Stake Assets</h1>
                 <p className="page-subtitle">Earn passive income with your crypto. Stake your assets and start earning rewards today.</p>
@@ -102,7 +111,7 @@ export default function Stake(props) {
                     <form id="stakeForm">
                         <div className="form-group">
                             <div className="balance-info">
-                                <span>Available: {parseFloat(balance).toFixed(2)} ETH</span>
+                                <span>Available for stake: {parseFloat(balance).toFixed(2)} ETH</span>
                                 <span>≈ $3,125.00</span>
                             </div>
 
@@ -166,7 +175,7 @@ export default function Stake(props) {
                     <form id="stakeForm">
                         <div className="form-group">
                             <div className="balance-info">
-                                <span>Your available stake: {parseFloat(stakedAssets).toFixed(2)} ETH</span>
+                                <span>Available for unstake: {parseFloat(stakedAssets).toFixed(2)} ETH</span>
                                 <span>≈ $3,125.00</span>
                             </div>
 

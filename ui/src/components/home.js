@@ -70,7 +70,7 @@ export default function Home(props) {
 
                 </div>
             </section>
-                <Activity contract={contract} /> </>
+                <Activity contract={contract} setLoader={setLoader} /> </>
                 :
                 <h3 style={{
                     textAlign: "center",

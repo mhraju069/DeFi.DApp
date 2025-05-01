@@ -2,7 +2,7 @@ import { formatEther } from 'ethers';
 import React, { useEffect } from 'react'
 
 export default function Activity(props) {
-    const { contract, setLoader } = props;
+    const { contract } = props;
 
     const [log, setLog] = React.useState([]);
 
@@ -11,7 +11,6 @@ export default function Activity(props) {
 
         const fetchLogs = async () => {
             try {
-                setLoader(true);
                 const Dipositlog = await contract.queryFilter(contract.filters.deposit())
                 const Stakelog = await contract.queryFilter(contract.filters.stake())
                 const Unstakelog = await contract.queryFilter(contract.filters.unstake())
@@ -38,8 +37,6 @@ export default function Activity(props) {
                 setLog(allLogs.slice(0, 50));
             } catch (e) {
                 console.log("Fetch log error", e);
-            }finally {
-                setLoader(false);
             }
         }
 
@@ -70,7 +67,7 @@ export default function Activity(props) {
     return (
         <>
             <div className="card activity-feed">
-                <h2>{log.length == 0 ? "No activity yet" : "Recent Activity"}</h2>
+                <h2>{log.length == 0 ? "Loading..." : "Recent Activity"}</h2>
                 {!log.length == 0 &&
                     <div className="activity-list">
                         {log.map((item, index) => (

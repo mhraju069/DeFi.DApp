@@ -1,4 +1,4 @@
-import { formatEther } from 'ethers'; // সঠিক
+import { formatEther } from 'ethers';
 import React, { useEffect, useState } from 'react'
 import Activity from './activity';
 
@@ -12,7 +12,6 @@ export default function Home(props) {
 
     const getBalance = async () => {
         try {
-            // if (loader) return;
             setLoader(true);
             const currentBalance = await contract.balance(wallet);
             setBalance(formatEther(currentBalance));
@@ -70,7 +69,7 @@ export default function Home(props) {
 
                 </div>
             </section>
-                <Activity contract={contract} setLoader={setLoader} /> </>
+                <Activity contract={contract} /> </>
                 :
                 <h3 style={{
                     textAlign: "center",

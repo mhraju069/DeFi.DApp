@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { formatEther, parseEther } from 'ethers';
 import Loader from './loader';
 export default function Stake(props) {
-    const { wallet, contract,Alert } = props;
+    const { wallet, contract, Alert } = props;
     const [stakeAmount, setStakeAmount] = useState(0);
     const [unstakeAmount, setUnstakeAmount] = useState(0);
-    const [duration, setDuration] = useState(1); // Default to 1 min
+    const [duration, setDuration] = useState(0);
     const [balance, setBalance] = useState(0);
     const [stakedAssets, setStakedAssets] = useState(0);
     const [showStaked, setShowStaked] = useState(true);
@@ -17,35 +17,42 @@ export default function Stake(props) {
 
     const Stake = async () => {
         if (!stakeAmount || isNaN(stakeAmount)) {
-            Alert("Please enter a valid amount for staking.","warning");
+            Alert("Please enter a valid amount for staking.", "warning");
             return;
         }
         try {
             setLoader(true);
             const tx = await contract.Stake(parseEther(stakeAmount), duration);
             await tx.wait();
-            Alert("Staking successful!","success");
+            Alert(`Staking successful for ${duration} minutes.`, "success");
+            setStakeAmount(0);
+            setDuration(0);
         } catch (error) {
             console.error("Error staking:", error);
-            Alert("Something went wrong,try again.","error");
-        }finally{
+            Alert("Something went wrong,try again.", "error");
+        } finally {
             setLoader(false);
+
         }
     }
 
     const Unstake = async () => {
         if (!unstakeAmount || isNaN(unstakeAmount)) {
-            Alert("Please enter a valid amount for unstake.","warning"); 
+            Alert("Please enter a valid amount for unstake.", "warning");
             return;
         }
         try {
             setLoader(true);
             const tx = await contract.Unstake(parseEther(unstakeAmount));
             await tx.wait();
-            Alert("Unstake successful!","success");
+            setUnstakeAmount(0);
+            Alert("Unstake successful!", "success");
         } catch (error) {
             console.error("Error Unstakeing:", error);
-            Alert("Something went wrong,try again.","error");
+            Alert("Something went wrong,try again.", "error");
+        } finally {
+            setLoader(false);
+            
         }
     }
 
@@ -62,7 +69,7 @@ export default function Stake(props) {
         };
         getBalance()
     },
-        [contract, wallet])
+        [contract, wallet, unstakeAmount])
 
     const ShowStake = () => {
         if (!showStaked) {
@@ -124,7 +131,41 @@ export default function Stake(props) {
 
                         <div className="form-group">
                             <label className="form-label">Staking Duration</label>
-                            <div className="PB-range-slider-div">
+                            {/* <!-- From Uiverse.io by 00Kubi --> */}
+                            <div className="radio-inputs">
+                                <label className={`radio ${duration === 1 ? 'selected' : ''}`}>
+                                    <input
+                                        type="radio"
+                                        name="radio"
+                                        value={1}
+                                        checked={duration === 1}
+                                        onChange={(e) => setDuration(Number(e.target.value))}
+                                    />
+                                    <span className="name">1 Min</span>
+                                </label>
+                                <label className={`radio ${duration === 5 ? 'selected' : ''}`}>
+                                    <input
+                                        type="radio"
+                                        name="radio"
+                                        value={5}
+                                        checked={duration === 5}
+                                        onChange={(e) => setDuration(Number(e.target.value))}
+                                    />
+                                    <span className="name">5 Min</span>
+                                </label>
+                                <label className={`radio ${duration === 10 ? 'selected' : ''}`}>
+                                    <input
+                                        type="radio"
+                                        name="radio"
+                                        value={10}
+                                        checked={duration === 10}
+                                        onChange={(e) => setDuration(Number(e.target.value))}
+                                    />
+                                    <span className="name">10 Min</span>
+                                </label>
+                            </div>
+
+                            {/* <div className="PB-range-slider-div">
                                 <input
                                     type="range"
                                     min="0"
@@ -134,7 +175,7 @@ export default function Stake(props) {
                                     onChange={(e) => setDuration(Number(e.target.value))}
                                 />
                                 <p className="PB-range-slidervalue">{(duration)}</p>
-                            </div>
+                            </div> */}
                             <div className="form-text">Longer durations typically offer higher APY</div>
                         </div>
 

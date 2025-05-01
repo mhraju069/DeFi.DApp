@@ -30,8 +30,8 @@ function App() {
       <Nav contract={contract} showHome={showHome} setShowHome={setShowHome} setShowDeposit={setShowDeposit} showDeposit={showDeposit} showStake={showStake} setShowStake={setShowStake} showSwap={showSwap} setShowSwap={setShowSwap} wallet={wallet} Connect={Connect} />
       <main className="main-content">
         {showHome && <Home wallet={wallet} provider={provider} contract={contract} setLoader={setLoader} Alert={Alert} />}
-        {showDeposit && <Deposit contract={contract} wallet={wallet} provider={provider} setLoader={setLoader} Alert={Alert} />}
-        {showStake && <Stake contract={contract} provider={provider} wallet={wallet} setLoader={setLoader} Alert={Alert}/>}
+        {showDeposit && <Deposit contract={contract} wallet={wallet} provider={provider} Alert={Alert} />}
+        {showStake && <Stake contract={contract} provider={provider} wallet={wallet} Alert={Alert}/>}
         {showSwap && <Swap />}
         {loader && <Loader />}
       </main>

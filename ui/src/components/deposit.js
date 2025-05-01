@@ -1,11 +1,13 @@
 import React, { useEffect,useRef } from 'react'
 import QRCode from 'qrcode';
 import { parseEther, formatEther } from 'ethers';
+import Loader from './loader';
 
 export default function Deposit(props) {
-    const { contract, wallet, provider } = props
+    const { contract, wallet, provider,Alert } = props
     const [amount, setAmount] = React.useState(0)
     const [balance, setBalance] = React.useState(0)
+    const [loader, setLoader] = React.useState(false)
 
     useEffect(() => {
         const getBalance = async () => {
@@ -14,7 +16,7 @@ export default function Deposit(props) {
         };
         getBalance()
     },
-        [contract, wallet])
+        [contract, wallet,amount])
 
 
     const deposit = async () => {
@@ -23,16 +25,19 @@ export default function Deposit(props) {
             return;
         }
         try {
-
+            setLoader(true)
             const depositAmount = await contract.Deposit({
                 value: parseEther(amount)
             })
             await depositAmount.wait()
             console.log("Deposit successful", depositAmount)
-            alert("Deposit successful")
+            Alert("Deposit successful", "success")
+            setAmount(0)
         } catch (error) {
             console.error("Deposit failed", error)
-            alert("Deposit failed. Please try again.")
+            Alert("Deposit failed", "error")
+        }finally {
+            setLoader(false)
         }
     }
 
@@ -57,7 +62,7 @@ export default function Deposit(props) {
 
 
     return (
-        <>
+        <>  {loader && <Loader />}
             <section id="deposit" className="fade-in">
                 <h1 className="page-title">Deposit Funds</h1>
                 <p className="page-subtitle">Add assets to your blockchain wallet. Choose from multiple networks and deposit methods.</p>

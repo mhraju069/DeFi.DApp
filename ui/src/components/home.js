@@ -13,10 +13,10 @@ export default function Home(props) {
     const getBalance = async () => {
         try {
             setLoader(true);
-            const currentBalance = await contract.balance(wallet);
+            const currentBalance = await contract.mainBalance(wallet);
             setBalance(formatEther(currentBalance));
-            const staked = await contract.stakeBalance(wallet);
-            setStakedAssets(formatEther(staked));
+            // const staked = await contract.stakeBalance(wallet);
+            // setStakedAssets(formatEther(staked));
         }
         catch (error) {
             Alert("Something went wrong", "error")

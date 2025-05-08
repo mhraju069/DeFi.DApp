@@ -2,7 +2,7 @@ import { BrowserProvider, Contract } from 'ethers';
 import React, { useState } from 'react'
 import Defi_v1 from './Defi_v1.json';
 import Alert from './alert';
-const contractAddress = "0x79d2C47d09a46367dC9d25B5573B6D63A84C93e6"; // Replace with your contract address
+const contractAddress = "0xd7cc9b08bb76a0CfecC7fADB864160200ed7fb0b"; // Replace with your contract address
 
 
 export function ConnectWallet() {
@@ -21,9 +21,11 @@ export function ConnectWallet() {
             const signer =await provider.getSigner();
             const address = await signer.getAddress();
             const contracts = new Contract(contractAddress, Defi_v1.abi, signer);
+            console.log(contract.address)
             setContract(contracts);
             setWallet(address);
             setProvider(provider);
+            console.log('Owner  : 0x82..6D4' )
             Alert("Wallet connected successfully", "success");
         }catch (error) {
             console.error("Error connecting to wallet:", error);

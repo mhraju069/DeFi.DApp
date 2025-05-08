@@ -11,9 +11,9 @@ export default function Activity(props) {
 
         const fetchLogs = async () => {
             try {
-                const Dipositlog = await contract.queryFilter(contract.filters.deposit())
-                const Stakelog = await contract.queryFilter(contract.filters.stake())
-                const Unstakelog = await contract.queryFilter(contract.filters.unstake())
+                const Dipositlog = await contract.queryFilter(contract.filters.depositlog())
+                const Stakelog = await contract.queryFilter(contract.filters.stakelog())
+                const Unstakelog = await contract.queryFilter(contract.filters.unstakelog())
 
                 const logs = (event, type) => {
                     const time = new Date(event.args.time.toString() * 1000).toLocaleString();
@@ -47,15 +47,15 @@ export default function Activity(props) {
             fetchLogs();
         };
 
-        contract.on("stake", onEvent);
-        contract.on("unstake", onEvent);
-        contract.on("deposit", onEvent);
+        contract.on("stakelog", onEvent);
+        contract.on("unstakelog", onEvent);
+        contract.on("depositlog", onEvent);
 
         // Cleanup on unmount
         return () => {
-            contract.off("stake", onEvent);
-            contract.off("unstake", onEvent);
-            contract.off("deposit", onEvent);
+            contract.off("stakelog", onEvent);
+            contract.off("unstakelog", onEvent);
+            contract.off("depositlog", onEvent);
         };
     }, [contract]);
 

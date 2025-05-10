@@ -1,29 +1,32 @@
 import React, { useEffect, useState } from 'react'
 import { formatEther, parseEther } from 'ethers';
 import Loader from './loader';
-import { Time } from 'highcharts';
 export default function Stake(props) {
     const { wallet, contract, Alert } = props;
     const [stakeAmount, setStakeAmount] = useState(0);
     const [stakeCount, setStakeCount] = useState(0);
-    const [unstakeAmount, setUnstakeID] = useState(0);
+    const [fetchdata, setfetchdata] = useState(0);
     const [duration, setDuration] = useState(0);
     const [balance, setBalance] = useState(0);
     const [stakeList, setStakeList] = useState([]);
     const [showStaked, setShowStaked] = useState(true);
     const [showUnstaked, setShowUnstaked] = useState(false);
-    const [showRewards, setShowRewards] = useState(false);
     const [loader, setLoader] = useState(false);
     const [rewards, setRewards] = useState(0)
-
+    const [pendingRewards, setpendingRewards] = useState(0)
+    const [apy, setApy] = useState(0)
 
 
 
 
 
     const Stake = async () => {
-        if (!stakeAmount || isNaN(stakeAmount)) {
+        if (!stakeAmount || isNaN(stakeAmount) || Number(stakeAmount) <= 0) {
             Alert("Please enter a valid amount for staking.", "warning");
+            return;
+        }
+        if (Number(duration) <= 0) {
+            Alert("Please select a valid staking duration.", "warning");
             return;
         }
         try {
@@ -35,6 +38,7 @@ export default function Stake(props) {
             Alert(`Staking successful for ${duration} minutes.`, "success");
             setStakeAmount(0);
             setDuration(0);
+            setfetchdata(fetchdata + 1);
         } catch (error) {
             console.error("Error staking:", error);
             Alert("Something went wrong,try again.", "error");
@@ -44,46 +48,40 @@ export default function Stake(props) {
         }
     }
 
-    // const Unstake = async () => {
-    //     if (!unstakeAmount || isNaN(unstakeAmount)) {
-    //         Alert("Please enter a valid amount for unstake.", "warning");
-    //         return;
-    //     }
-    //     try {
-    //         setLoader(true);
-    //         const tx = await contract.Unstake(unstakeId);
-    //         await tx.wait();
-    //         setUnstakeAmount(0);
-    //         Alert("Unstake successful!", "success");
-    //     } catch (error) {
-    //         console.error("Error Unstakeing:", error);
-    //         Alert("Something went wrong,try again.", "error");
-    //     } finally {
-    //         setLoader(false);
+    const Unstake = async (id) => {
+        try {
+            setLoader(true);
+            const tx = await contract.Unstake(id);
+            await tx.wait();
+            Alert("Unstake successful!", "success");
+            setfetchdata(fetchdata + 1);
+        } catch (error) {
+            console.error("Error Unstakeing:", error);
+            Alert("Something went wrong,try again.", "error");
+        } finally {
+            setLoader(false);
 
-    //     }
-    // }
+        }
+    }
 
+    //fetch contract data
     useEffect(() => {
         const fetchdata = async () => {
-            console.log('contract', contract)
-            const tx = await contract.CheckReward()
-            const count = await contract.stakeCount(wallet);
-            setStakeCount(count);
-            setRewards(formatEther(tx))
-            console.log("rewards  " + formatEther(tx), "count " + count)
-        }
-        fetchdata()
-    }, [contract, wallet])
-
-
-
-    useEffect(() => {
-        const getStakeList = async () => {
             try {
-                setLoader(true);
-                const stakelist = await contract.GetStakeLists();
+                //calculate main balance
+                const currentBalance = await contract.mainBalance(wallet);
+                setBalance(formatEther(currentBalance));
 
+                //calculate reward balance
+                const tx = await contract.CheckReward()
+                setRewards(formatEther(tx))
+
+                //calculate stake count
+                const count = await contract.stakeCount(wallet);
+                setStakeCount(count);
+
+                //handle Stake list
+                const stakelist = await contract.GetStakeLists();
                 const updatedList = await Promise.all(
                     stakelist.map(async (item) => {
                         if (!item || !item.balance || !item.stakingTime) {
@@ -115,30 +113,38 @@ export default function Stake(props) {
                         }
                     })
                 );
-
                 setStakeList(updatedList);
+
+                //Calculate Pending Rewards
+                let balance = 0
+                for (let i = 0; i < updatedList.length; i++) {
+                    const item = updatedList[i];
+                    balance+= Number(formatEther(item.reward))
+                }
+                setpendingRewards(balance.toFixed(8));
+
+                //Calculate APY
+                // const apy = await contract.rewardsRate(wallet)
+                // setApy(apy)
+
+                setfetchdata(fetchdata + 1);
             } catch (error) {
                 console.error("Error fetching stake list:", error);
-                Alert("স্টেক লিস্ট লোড করতে সমস্যা হয়েছে", "error");
             } finally {
                 setLoader(false);
             }
         };
 
         if (contract && wallet) {
-            getStakeList();
+            fetchdata();
         }
-    }, [contract, wallet, Alert]);
+    }, [contract, wallet, fetchdata]);
 
-
+    //handle remain time of stakes
     const Remainingtime = (item) => {
-        // প্রথমে ডিবাগ করে দেখি কি পাচ্ছি
-        console.log("Received item:", item);
-        console.log("Received item.endtime:", item.endtime);
 
-        // যদি item না থাকে বা item.endtime না থাকে
         if (!item || item.endtime === undefined || item.endtime === null) {
-            return "সময় নির্ধারিত হয়নি";
+            return "Error";
         }
 
         try {
@@ -146,67 +152,41 @@ export default function Stake(props) {
             const now = Math.floor(Date.now() / 1000);
 
             if (isNaN(end)) {
-                return "অবৈধ সময়";
+                return "Something is wrong";
             }
 
             const remaining = end - now;
 
             if (remaining <= 0) {
-                return "সময় শেষ";
+                return "TImes Up";
             }
 
             const days = Math.floor(remaining / (60 * 60 * 24));
             const hours = Math.floor((remaining % (60 * 60 * 24)) / (60 * 60));
             const minutes = Math.floor((remaining % (60 * 60)) / 60);
 
-            // দুই ডিজিট ফরম্যাটিং
             const format = (num) => num < 10 ? `0${num}` : num;
 
-            return `${format(days)} দিন ${format(hours)} ঘণ্টা ${format(minutes)} মিনিট`;
+            return `${format(days)}D: ${format(hours)}: ${format(minutes)}`;
         } catch (error) {
-            console.error("সময় ক্যালকুলেশনে ত্রুটি:", error);
-            return "সময় গণনা করতে ব্যর্থ";
+            console.error("Remain Time:", error);
+
         }
     }
 
-
-
-
-    useEffect(() => {
-        const getBalance = async () => {
-            setLoader(true);
-            const currentBalance = await contract.mainBalance(wallet);
-            setBalance(formatEther(currentBalance));
-            setLoader(false);
-        };
-        getBalance()
-    },
-        [contract, wallet])
-
-
-
+    //handle pages
     const ShowStake = () => {
         if (!showStaked) {
             setShowStaked(true);
             setShowUnstaked(false);
-            setShowRewards(false);
         }
     }
     const ShowUnstake = () => {
         if (!showUnstaked) {
             setShowStaked(false);
             setShowUnstaked(true);
-            setShowRewards(false);
         }
     }
-    const ShowRewards = () => {
-        if (!showRewards) {
-            setShowRewards(true);
-            setShowStaked(false);
-            setShowUnstaked(false);
-        }
-    }
-
 
 
 
@@ -286,17 +266,6 @@ export default function Stake(props) {
                                 </label>
                             </div>
 
-                            {/* <div className="PB-range-slider-div">
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max="300"
-                                    value={duration}
-                                    className="PB-range-slider"
-                                    onChange={(e) => setDuration(Number(e.target.value))}
-                                />
-                                <p className="PB-range-slidervalue">{(duration)}</p>
-                            </div> */}
                             <div className="form-text">Longer durations typically offer higher APY</div>
                         </div>
 
@@ -325,7 +294,7 @@ export default function Stake(props) {
                     <div className="stats-grid">
                         <div className="card stat-card">
                             <h3>Total Rewards Earned</h3>
-                            <h1>{rewards} RC</h1>
+                            <h1>{Number(rewards.toString()).toFixed(8)} RC</h1>
                             <div className="sparkline">↑ 8.2%</div>
                         </div>
 
@@ -337,14 +306,15 @@ export default function Stake(props) {
 
                         <div className="card stat-card">
                             <h3>APY Average</h3>
-                            <h1>12.6%</h1>
+                            <h1>{apy.toFixed(2)}%</h1>
                             <div className="sparkline">↑ 1.8%</div>
                         </div>
 
                         <div className="card stat-card">
                             <h3>Pending Rewards</h3>
-                            <h1>$428.90</h1>
-                            <button className="claim-btn">Claim</button>
+                            <h1>{pendingRewards} RC</h1>
+                            <div className="sparkline">↑ 8.2%</div>
+
                         </div>
                     </div>
 
@@ -385,40 +355,9 @@ export default function Stake(props) {
                                     </div>
 
                                     <div className="position-actions">
-                                        <button className="secondary-btn">Unstake & Claim</button>
+                                        <button onClick={() => Unstake(index)} className="secondary-btn">Unstake & Claim</button>
                                     </div>
                                 </div>))}
-
-                                {/* <div className="position-card">
-                                    <div className="position-header">
-                                        <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" alt="ETH" style={{ width: '40px', height: '40px' }} />
-                                        <div className="position-info">
-                                            <h4>Ethereum</h4>
-                                            <p>8.5% APY • 30 Day Lock</p>
-                                        </div>
-                                        <div className="position-value">2.45 ETH ≈ $7,350.00</div>
-                                    </div>
-
-                                    <div className="position-details">
-                                        <div className="detail-row">
-                                            <span>Rewards Earned</span>
-                                            <span className="positive">0.12 ETH ≈ $360.00</span>
-                                        </div>
-                                        <div className="detail-row">
-                                            <span>Time Remaining</span>
-                                            <span>12 Days</span>
-                                        </div>
-                                        <div className="detail-row">
-                                            <span>Est. Final Reward</span>
-                                            <span className="positive">≈ 0.17 ETH</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="position-actions">
-                                        <button className="secondary-btn">Add More</button>
-                                        <button className="primary-btn">Claim Rewards</button>
-                                    </div>
-                                </div> */}
                             </div>
                         </div>
 

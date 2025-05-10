@@ -1,44 +1,53 @@
 import { formatEther } from 'ethers';
 import React, { useEffect, useState } from 'react'
 import Activity from './activity';
+import Loader from './loader';
 
 
 export default function Home(props) {
-    const { wallet, contract, setLoader, Alert } = props;
+    const { wallet, contract, Alert } = props;
     const [isWallet, setIsWallet] = useState(false);
     const [balance, setBalance] = useState(0);
     const [stakedAssets, setStakedAssets] = useState(0);
+    const [loader, setLoader] = useState(false);
 
 
-    const getBalance = async () => {
-        try {
-            setLoader(true);
-            const currentBalance = await contract.mainBalance(wallet);
-            setBalance(formatEther(currentBalance));
-            // const staked = await contract.stakeBalance(wallet);
-            // setStakedAssets(formatEther(staked));
-        }
-        catch (error) {
-            Alert("Something went wrong", "error")
-            console.log(error);
-        } finally {
-            setLoader(false);
-        }
-    }
-
+    
     useEffect(() => {
-        if (wallet && contract) {
-            getBalance();
-            setIsWallet(true);
+        const getBalance = async () => {
+            try {
+                setLoader(true);
+                const currentBalance = await contract.mainBalance(wallet);
+                setBalance(formatEther(currentBalance));
+                const count = await contract.stakeCount(wallet);
+                let balance = 0
+                for (let i = 0; i < count; i++) {
+                    const stake = await contract.stakeList(wallet, i);
+                    balance += parseFloat(formatEther(stake.balance))
+                }
+                setStakedAssets(balance);
+            }
+            catch (error) {
+                console.log(error);
+            } finally {
+                setLoader(false);
+            }
         }
-       
-    }, [wallet]);
+
+        if (!contract || !wallet) return;
+        getBalance();
+        setIsWallet(true);
+
+
+    }, [wallet,contract]);
 
 
 
     return (
         <>
-            {isWallet ? <> <section id="dashboard" className="fade-in">
+            {isWallet ? <> 
+            {loader && <Loader />}
+            <section id="dashboard" className="fade-in">
                 <h1 className="page-title">Dashboard</h1>
                 <p className="page-subtitle">Your blockchain portfolio at a glance. Track your assets, staking rewards, and recent transactions in one place.</p>
 
@@ -51,7 +60,7 @@ export default function Home(props) {
 
                     <div className="card stat-card">
                         <h3>Staked Assets</h3>
-                        <h1>{parseFloat(stakedAssets).toFixed(2)} ETH</h1>
+                        <h1>{stakedAssets} ETH</h1>
                         <div className="sparkline">8.2%</div>
                     </div>
 

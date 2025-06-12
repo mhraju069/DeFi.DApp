@@ -14,12 +14,12 @@ module.exports = {
   },
   networks: {
     sepolia: {
-      url: process.env.SEPOLIA_URL,
+      url: process.env.ARB_SEPOLIA_URL,
       accounts: [process.env.PRIVATE_KEY]
     }
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY
+    apiKey: process.env.ARBISCAN_API_KEY
   },
   sourcify: {
     enabled: true

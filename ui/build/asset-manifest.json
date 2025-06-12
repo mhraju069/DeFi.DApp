@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/DeFi.DApp/static/css/main.4acf2946.css",
-    "main.js": "/DeFi.DApp/static/js/main.e1df4773.js",
+    "main.js": "/DeFi.DApp/static/js/main.81d75237.js",
     "static/js/453.63c4db86.chunk.js": "/DeFi.DApp/static/js/453.63c4db86.chunk.js",
     "index.html": "/DeFi.DApp/index.html",
     "main.4acf2946.css.map": "/DeFi.DApp/static/css/main.4acf2946.css.map",
-    "main.e1df4773.js.map": "/DeFi.DApp/static/js/main.e1df4773.js.map",
+    "main.81d75237.js.map": "/DeFi.DApp/static/js/main.81d75237.js.map",
     "453.63c4db86.chunk.js.map": "/DeFi.DApp/static/js/453.63c4db86.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.4acf2946.css",
-    "static/js/main.e1df4773.js"
+    "static/js/main.81d75237.js"
   ]
 }
